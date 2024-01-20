@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Spell Recognition</title>
+  <style>
+    .btn {
+      width: 130px;
+      height: 40px;
+      color: #fff;
+      border-radius: 5px;
+      padding: 10px 25px;
+      font-family: 'Lato', sans-serif;
+      font-weight: 500;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      display: inline-block;
+      box-shadow: inset 2px 2px 2px 0px rgba(255, 255, 255, .5),
+        7px 7px 20px 0px rgba(0, 0, 0, .1),
+        4px 4px 5px 0px rgba(0, 0, 0, .1);
+      outline: none;
+    }
+
+    .btn {
+      background: rgb(0, 172, 238);
+      background: linear-gradient(0deg, rgba(0, 172, 238, 1) 0%, rgba(2, 126, 251, 1) 100%);
+      width: 130px;
+      height: 40px;
+      line-height: 42px;
+      padding: 0;
+      border: none;
+
+    }
+
+    .btn span {
+      position: relative;
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .btn:before,
+    .btn:after {
+      position: absolute;
+      content: "";
+      right: 0;
+      top: 0;
+      background: rgba(2, 126, 251, 1);
+      transition: all 0.3s ease;
+    }
+
+    .btn:before {
+      height: 0%;
+      width: 2px;
+    }
+
+    .btn:after {
+      width: 0%;
+      height: 2px;
+    }
+
+    .btn:hover {
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .btn:hover:before {
+      height: 100%;
+    }
+
+    .btn:hover:after {
+      width: 100%;
+    }
+
+    .btn span:hover {
+      color: rgba(2, 126, 251, 1);
+    }
+
+    .btn span:before,
+    .btn span:after {
+      position: absolute;
+      content: "";
+      left: 0;
+      bottom: 0;
+      background: rgba(2, 126, 251, 1);
+      transition: all 0.3s ease;
+    }
+
+    .btn span:before {
+      width: 2px;
+      height: 0%;
+    }
+
+    .btn span:after {
+      width: 0%;
+      height: 2px;
+    }
+
+    .btn span:hover:before {
+      height: 100%;
+    }
+
+    .btn span:hover:after {
+      width: 100%;
+    }
+
+    .popup-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    .popup-content {
+      text-align: center;
+      visibility: hidden;
+      width: 110px;
+      background-color: #fff;
+      color: #333;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 10px;
+      position: absolute;
+      top: 30px;
+      left: 0;
+      z-index: 1;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      transition: visibility 0.3s ease;
+    }
+
+    .popup-container:hover .popup-content {
+      visibility: visible;
+    }
+
+    .popup-content div {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1 id="dynamicText" style="text-align: center;">Spell Recognition</h1>
+  <div class="popup-container">
+    <button class="btn"><span>咒语示例</span></button>
+    <div class="popup-content">
+      <!-- 这里放入弹出框的内容 -->
+      <div data-image="./static/1.png">荧光闪烁</div>
+      <div data-image="./static/2.png">呼神护卫</div>
+      <div data-image="./static/3.png">钻心剜骨</div>
+      <div data-image="./static/4.png">粉身碎骨</div>
+      <div data-image="./static/5.png">愈合如初</div>
+      <div data-image="./static/6.png">无声无息</div>
+      <div data-image="./static/7.png">快快禁锢</div>
+      <div data-image="./static/8.png">飞来咒</div>
+      <div data-image="./static/9.png">眼疾咒</div>
+      <div data-image="./static/10.png">消隐无踪</div>
+      <div data-image="./static/11.png">盔甲护身</div>
+      <div data-image="./static/12.png">阿瓦达索命</div>
+    </div>
+    <div id="image-container">
+      <img id="spell-image" src="" alt="">
+    </div>
+  </div>
+  <div style="display: flex;">
+    <div style="flex: 1; width:50%; display:flex;justify-content: center;">
+      <img src="{{ url_for('video_feed') }}" width="640" height="480">
+    </div>
+    <div style="flex: 1; width:50%; display:flex;justify-content: center; padding-left:10px;">
+      <video id="myVideo" width="640" height="480" controls autoplay="autoplay" muted>
+        Your browser does not support the video tag.
+      </video>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    var firstUrl = true
+    var lastUrl = ''
+    function spellName(num) {
+      if (num == '1') {
+        return "愈合如初"
+      }
+      if (num == '2') {
+        return "粉身碎骨"
+      }
+      if (num == '3') {
+        return "钻心剜骨"
+      }
+      if (num == '4') {
+        return "呼神护卫"
+      }
+      if (num == '5') {
+        return "无声无息"
+      }
+      if (num == '6') {
+        return "消隐无踪"
+      }
+      if (num == '7') {
+        return "快快禁锢"
+      }
+      if (num == '8') {
+        return "飞来飞来飞来"
+      }
+      if (num == '9') {
+        return "眼疾咒"
+      }
+      if (num == '10') {
+        return "盔甲咒"
+      }
+      if (num == '11') {
+        return "阿瓦达索命"
+      }
+      if (num == '12') {
+        return "荧光闪烁"
+      }
+      return "Spell Recognition"
+    }
+    function selectVideo(num) {
+      var url = '/static/' + num + '.mp4'
+      return url
+    }
+    function getVideo() {
+      axios.get('/special_effect')
+        .then(function (response) {
+          console.log(response.data)
+          var currentUrl = selectVideo(response.data)
+          var currentName = spellName(response.data)
+          console.log(currentName)
+          var dynamicText = document.getElementById('dynamicText');
+          if(response.data!=='0'){
+             dynamicText.textContent = currentName;
+          }
+          if (firstUrl) {
+            firstUrl = false
+            document.getElementById('myVideo').src = currentUrl;
+            var myVideo = document.getElementById('myVideo')
+            myVideo.play()
+            myVideo.autoplay = true
+            myVideo.loop = true
+            lastUrl = currentUrl
+          }
+          else {
+            if (lastUrl !== currentUrl) {
+              document.getElementById('myVideo').src = currentUrl;
+              document.getElementById('myVideo').play();
+              var myVideo = document.getElementById('myVideo')
+              myVideo.play()
+              myVideo.autoplay = true
+              myVideo.loop = true
+            }
+            lastUrl = currentUrl
+          }
+        })
+        .catch(function (error) {
+          console.error('Error:', error);
+        });
+    }
+    setInterval(getVideo, 3000);  // 3s发送一次
+    var popupContent = document.querySelector('.popup-content');
+    var spellImage = document.getElementById('spell-image');
+
+    // 给每个咒语元素添加事件监听器
+    popupContent.querySelectorAll('div').forEach(function (spell) {
+      spell.addEventListener('mouseenter', function () {
+        // 获取data-image属性的值
+        var imageUrl = spell.getAttribute('data-image');
+        // 设置图片的src属性
+        spellImage.src = imageUrl;
+      });
+    });
+
+    // 清空图片的src属性,以便隐藏图片
+    popupContent.addEventListener('mouseleave', function () {
+      spellImage.src = '';
+    });
+  </script>
+</body>
+
+</html>
